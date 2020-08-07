@@ -1,6 +1,6 @@
 # required preinstall packages: ape, tree, ggplot2, cowplot
 # also see tree diagram paper (2020 Summer)
-packages <- c("ggplot2","ape","cowplot","tree")
+packages <- c("ggplot2","ape","cowplot","tree","stringr","spatstat")
 # check for missing packages
 installed_packages <- packages %in% rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
@@ -13,6 +13,9 @@ invisible(lapply(packages, library, character.only = TRUE))
 # =====================get tree information function ==================================
 ## This function allows users to retrieve tree information to know how many density plots to draw and how to draw
 tree_info <- function(dataset){
+  
+  # avoid empty dataset
+  if(is.empty(dataset)){stop("argument is of an empty dataset")}
   
   library(stringr)
   
@@ -53,6 +56,11 @@ newickToTree <- function(string){
   library(ape)
   tree <- read.tree("ex.tre")
   
+  # Debug: stop if user typed in string with wrong Newick's format
+  if(length(which(tree$node.label=="")==TRUE)!=0){
+    stop("Error: Incorrect Newick's format is detected. Please check if your parent node is at the end of the brackets of child nodes")
+  }
+  
   # number of tip nodes
   tipnodes_num <- length(tree$tip.label)
   # number of total nodes
@@ -75,10 +83,10 @@ newickToTree <- function(string){
   
   # abstract variable used in each node
   tree.dat$var <- unlist(sub("(=|<|>).*", "", tree.dat$V3))
-  
+
   # abstract value used in each node
   tree.dat$values <- unlist(sub(".*(=|<|>)", "", tree.dat$V3))
-  
+
   
   # ================================================================================================= #
   # algorithm for turning tree.dat to a list of node number that can be used for drawing tree diagram #
@@ -154,9 +162,19 @@ newickToTree <- function(string){
       }
     }
   }
-  
+
   # tree.dat
   tree.dat <- tree.dat[order(tree.dat$actualNodeNum),]
+  
+  
+  # Debug: warning message if missing variable names or values of split nodes
+  if(length(which(is.na(as.numeric(tree.dat$values))==TRUE))!=0){
+    warning(paste0(c("missing value(s) at row ",paste0(which(is.na(as.numeric(tree.dat$values))),","))))
+  }
+  
+  else if(length(which(tree.dat$var==""))!=0){
+    warning(paste0(c("missing variable name(s) at row ",paste0(which((tree.dat$var)==""),","))))
+  }
   
   # This step helps us make this data frame easier fitting in our functions that previously created
   tree.dat$node_index <- tree.dat$actualNodeNum
@@ -183,7 +201,7 @@ get_nodes_list <- function(all_nodes){
   ## make sure our input is read as interger 
   node_num <- as.integer(all_nodes) #each split is given a node num
   ## also, we need to check node_num is not empty (empty means no split)
-  if (length(node_num)==0){print("there's no splitting node");stop()}
+  if (length(node_num)==0){stop("there's no splitting node")}
   # print(node_num) #debug
   
   ls_node_num <- list()
