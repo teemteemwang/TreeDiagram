@@ -11,8 +11,8 @@
   \item{treedat}{A character string (as in Newick's format) or the first object returned by \code{tree()} from \pkg{tree} package.}
   \item{cat_var}{A character string indicaing the predictor(classification) variable name in tree method.}
   \item{filename}{A character string. The name of output plot}
-  \item{pic_height}{A real positive numeric value. This argument is optional, and the default argument is set as 15}
-  \item{pic_width}{A real positive numeric value. This argument is optional, and the default argument is set as 15}
+  \item{pic_height}{A real positive numeric value. This argument is optional, and the default argument is set as 10}
+  \item{pic_width}{A real positive numeric value. This argument is optional, and the default argument is set as 10}
 }
 
 \author{Wen Tian (Wendy) Wang (\email{wtwang@sfu.ca}), Lloyd T. Elliott}
