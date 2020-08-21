@@ -1,6 +1,6 @@
 # required preinstall packages: ape, tree, ggplot2, cowplot
 # also see tree diagram paper (2020 Summer)
-packages <- c("ggplot2","ape","cowplot","tree","stringr","spatstat")
+packages <- c("ggplot2","ape","cowplot","tree","stringr","spatstat","ggrepel")
 # check for missing packages
 installed_packages <- packages %in% rownames(installed.packages())
 if (any(installed_packages == FALSE)) {
@@ -500,50 +500,23 @@ loca_plot <- function(node_list,mid_x,mid_y,width,length){
 
 # ==================== function to combine multiple informative plots ==============
 
+# We gather most of separate steps(& functions) together into one to create our tree diagram.
+
 multi_densPlot <- function(data,conditions_string=NULL,ls_node_num=NULL,split_var,cat_var,filename,pic_height=10,pic_width=10){
   
+  # avoid empty split node
   if(length(conditions_string)!=0){
     
-    # contain a list of picture for later combining into one plot
-    pic_list <- list()
+    # collecting positions for all plots (find the bottom left coordinate to put our plot
+    # as well as their width and length)
+    # note1: I believe that in "cowplot", the fixed width and length for an output plot is 1 for both.
+    # If we increase width and length, we will only see part of output plot, which is like zooming in a plot
+    # for more detail, please check "cowplot" function in "Cowplot" package
     
-    # change default seting of coordinate in ggplot to be fixed.
-    # we need this step in order to do the ratation later
-    library(cowplot)
-    library(ggplot2)
-    cf <- coord_fixed()
-    cf$default <- TRUE
-    
-    for(i in 1:length(conditions_string)){
-      # print(i) #debug
-      subset1 <- data[with(data,which(eval(parse(text=conditions_string[[i]][1])))),]
-      subset2 <- data[with(data,which(eval(parse(text=conditions_string[[i]][2])))),]
-      combined_subset <- data.frame(rbind(subset1,subset2))
-      # print(dim(combined_subset)) #debug
-      
-      # plot picture separately
-      cont_var <- as.character(split_var[i])
-      # print(cont_var) #debug
-      split_value <- as.numeric(sub(".*<", "", conditions_string[[i]][1]))
-      # print(split_value) #debug
-      
-      p<-informative_plot(combined_subset,cont_var,cat_var,classify.value=split_value)
-      # print(p) #debug
-      
-      # for the every 2nd layer, we need to rotate our plot to the left with 90 degree
-      if(((length(str_extract_all(conditions_string[[i]][1],"&")[[1]])+1) %% 2) == 0){
-        p<-p+scale_y_reverse()+cf +coord_flip()+theme(panel.background = element_rect(fill = "transparent",colour = NA))
-      }
-      
-      pic_list[[i]] <- p
-    }
-
-    # after collecting all plots, now we need to figure out the bottom left coordinate to put our plot
-    # as well as their width and length
-    mid_x=0.5
-    mid_y=0.5
-    width=1
-    length=1
+    mid_x=0.5 #center of x-axis
+    mid_y=0.5 #center of y-axis
+    width=1   #length of x-axis (see note1)
+    length=1  #length of y-axis (see note1)
     width0 <- width
     length0 <- length
     
@@ -552,21 +525,86 @@ multi_densPlot <- function(data,conditions_string=NULL,ls_node_num=NULL,split_va
       node_list = ls_node_num[[i]]
       loca_list[[i]] <- loca_plot(node_list,mid_x,mid_y,width,length)
     }
-    
     # print(loca_list) #debug
+    
+    # contain a list of picture for later combining into one plot
+    pic_list <- list()
+    
+    # contain a list of information for partitioned data at each node
+    lab_info <- list()
+    
+    # change default seting of coordinate in ggplot to be fixed.
+    # we need this step in order to do the ratation later
+    library(cowplot)
+    library(ggplot2)
+    
+    # this step is to fixed coordinate system when we rotate picture
+    cf <- coord_fixed()
+    cf$default <- TRUE
+    
+    for(i in 1:length(conditions_string)){
+      # print(i) #debug
+      
+      # collect partitioned data
+      subset1 <- data[with(data,which(eval(parse(text=conditions_string[[i]][1])))),]
+      subset2 <- data[with(data,which(eval(parse(text=conditions_string[[i]][2])))),]
+      combined_subset <- data.frame(rbind(subset1,subset2))
+      # print(dim(combined_subset)) #debug
+      
+      # choose the normal vector to draw density plot(in axis align cut, it is the split variable)
+      cont_var <- as.character(split_var[i])
+      # print(cont_var) #debug
+      
+      # find the split value to draw y-segment showing where the split occur
+      split_value <- as.numeric(sub(".*<", "", conditions_string[[i]][1]))
+      # print(split_value) #debug
+      
+      # size of tick labels
+      nodei=loca_list[[i]][6]
+      
+      # prepare for labels (node num, classify.var, min, classify value, max) for the first three cuts
+      lab_info[[i]] <- c(paste0("Node",nodei,":", cont_var,"(n=", dim(combined_subset)[1],")\n",
+                                "min=",min(combined_subset[,cont_var]),"\n",
+                                "classify.value=",split_value,"\n",
+                                "max=",max(combined_subset[,cont_var])),split_value)
+      # print(lab_info[[i]]) #debug
+      
+      # draw each informative plot
+      p<-informative_plot(combined_subset,cont_var,cat_var,classify.value=split_value)
+      # print(p) #debug
+      
+      # for the every 2nd layer, we need to rotate our plot to the left with 90 degree
+      if(((length(str_extract_all(conditions_string[[i]][1],"&")[[1]])+1) %% 2) == 0){
+        p<-p+scale_y_reverse()+cf+coord_flip()+
+          theme(panel.background = element_rect(fill = "transparent",colour = NA))
+      }
+      
+      # we put labels for the first three cuts
+      if(loca_list[[i]][5]<3){
+        p<- p+geom_label(aes(x=as.numeric(lab_info[[i]][2]),y=0,label = lab_info[[i]][1]),
+                         vjust = 0.5,hjust=0.5,alpha=0.5)
+      }
+      
+      # print(p) #debug
+      
+      pic_list[[i]] <- p
+      
+    }
     
     # initial an empty plot
     p0 <- ggplot() + theme(panel.background = element_rect(fill = "transparent", colour = NA), 
                            plot.background = element_rect(fill = "transparent", colour = NA))
     p <- ggdraw() +draw_plot(p0,mid_x-mid_x,mid_y-mid_y,width0,length0)
-    # recursively adding each informative (double-density) plot
+    
+    # recursively adding each double-density plot
     for (i in 1:length(ls_node_num)){
+      
       p<- p+draw_plot(pic_list[[i]],
                       loca_list[[i]][1],loca_list[[i]][2],loca_list[[i]][3],loca_list[[i]][4])
+      
     }
-    # p
+    # save plot
     ggsave(paste0(filename,".png"),p,height=pic_height,width=pic_width,bg = "transparent")
-    
     # return(data.frame(cbind(pic_list,loca_list))) #debug
   }
 }
@@ -584,7 +622,7 @@ multi_densPlot <- function(data,conditions_string=NULL,ls_node_num=NULL,split_va
 # treedat can be either a tree string or tree information in decision tree
 # maybe in the future we can have 1,2,3.. to indicate different types of tree information 
 # constructing by different tree functions (e.g 1=newick, 2=tree information in tree(),3=...)
-treeDiagram <- function(data,treedat,cat_var,filename,pic_height=15,pic_width=15){
+treeDiagram <- function(data,treedat,cat_var,filename,pic_height=10,pic_width=10){
   # get tree information
   if (is.data.frame(treedat)==FALSE){
     # print(is.data.frame(treedat)==FALSE) #debug
