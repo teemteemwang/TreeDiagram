@@ -7,5 +7,5 @@ Author: Wen Tian (Wendy) Wang, Lloyd Elliott
 Maintainer: Wen Tian (Wendy) Wang <wtwang@sfu.ca>
 Description: visualizing cuts for either axis-align or non axis-align tree methods (e.g. decision tree, random tessellation process)
 License: BSD 2-clause license
-Imports: parallel
+Imports: ggplot2,aple,cowplot,tree,stringr,spatstat
 Packaged: 2020-07-28 12:08:07 PDT
