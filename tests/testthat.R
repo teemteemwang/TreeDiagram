@@ -1,4 +1,4 @@
 library(testthat)
-library(treeDiagram)
+library(treeDiagram2020)
 
 test_check("treeDiagram")
