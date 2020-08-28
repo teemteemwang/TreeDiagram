@@ -20,7 +20,7 @@ tree_info <- function(dataset){
   # avoid empty dataset
   if(is.empty(dataset)){stop("argument is of an empty dataset")}
 
-  library(stringr)
+  # library(stringr)
 
   ## In the tree information, each row represents either the split node or the leaf(end point of split)
   ## However, we only want the information about where the splits are, so we firstly remove rows when var==<leaf>
@@ -506,7 +506,8 @@ loca_plot <- function(node_list,mid_x,mid_y,width,length){
 # ==================== function to combine multiple informative plots ==============
 
 # We gather most of separate steps(& functions) together into one to create our tree diagram.
-
+#' @import ggplot2
+#' @import cowplot
 multi_densPlot <- function(data,conditions_string=NULL,ls_node_num=NULL,split_var,cat_var,filename,pic_height=10,pic_width=10){
 
   # avoid empty split node
@@ -540,8 +541,8 @@ multi_densPlot <- function(data,conditions_string=NULL,ls_node_num=NULL,split_va
 
     # change default seting of coordinate in ggplot to be fixed.
     # we need this step in order to do the ratation later
-    library(cowplot)
-    library(ggplot2)
+    # library(cowplot)
+    # library(ggplot2)
 
     # this step is to fixed coordinate system when we rotate picture
     cf <- coord_fixed()
@@ -566,6 +567,7 @@ multi_densPlot <- function(data,conditions_string=NULL,ls_node_num=NULL,split_va
 
       # size of tick labels
       nodei=loca_list[[i]][6]
+      # print(nodei) #debug
 
       # prepare for labels (node num, classify.var, min, classify value, max) for the first three cuts
       lab_info[[i]] <- c(paste0("Node",nodei,":", cont_var,"(n=", dim(combined_subset)[1],")\n",
@@ -757,6 +759,10 @@ get_node_list_trf <- function(CutInfo){
 
 
 # visualization for result from random tessellation random forest model
+#' @import ggplot2
+#' @import cowplot
+#' @import stringr
+#' @importFrom utils str
 multi_densPlot_trf <- function(Cutinfo,ls_node_num=NULL,filename,pic_height=NULL,pic_width=NULL){
 
   if((length(Cutinfo)-1)!=0){
@@ -766,8 +772,8 @@ multi_densPlot_trf <- function(Cutinfo,ls_node_num=NULL,filename,pic_height=NULL
 
     # change default seting of coordinate in ggplot to be fixed.
     # we need this step in order to do the ratation later
-    library(cowplot)
-    library(ggplot2)
+    # library(cowplot)
+    # library(ggplot2)
     cf <- coord_fixed()
     cf$default <- TRUE
 
