@@ -12,9 +12,9 @@ library(treeDiagram2020)
 cancer <- read.csv(url("https://archive.ics.uci.edu/ml/machine-learning-databases/00451/dataR2.csv")) \
 cancer$Classification <- factor(cancer$Classification)\
 library(tree)\
-t_cancer <- tree::tree(Classification ~ ., data=cancer)\
+t_cancer <- tree::tree(Classification ~ ., data=cancer)
 
 setwd("~/Desktop")\
-treeDiagram(cancer,t_cancer[[1]],"Classification","tree diagram for tree()")\
+treeDiagram(cancer,t_cancer[[1]],"Classification","tree diagram for tree()")
 
 see 'man/treeDiagram.Rd' for more description for function 'treeDiagram()'.
