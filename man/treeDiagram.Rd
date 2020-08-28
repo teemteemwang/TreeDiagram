@@ -42,7 +42,8 @@
 \examples{
 \dontrun{
 > # read breast cancer data from UCI database website
-> cancer <- read.csv(url("https://archive.ics.uci.edu/ml/machine-learning-databases/00451/dataR2.csv"))
+> cancer <- read.csv(
+  url("https://archive.ics.uci.edu/ml/machine-learning-databases/00451/dataR2.csv"))
 > # make sure predictor variable is factored
 > cancer$Classification <- factor(cancer$Classification)
 > summary(cancer) #optional step giving an overview of the dataset
@@ -60,7 +61,10 @@
 
 > # e.g.2 : draw tree diagram giving a newick format file of a tree
 > # newick format string of a decision tree for breast cancer
-> breast_cancer<-"(((BMI=25.745,BMI=29.722)Resistin=13.248)Age>44.5,(((((Age=70)Adiponectin<9.3482)BMI<32.275)Glucose<111)Leptin>7.93315)Age>48.5)Glucose=91.5;"
+> breast_cancer <- paste0(
+  "(((BMI=25.745,BMI=29.722)Resistin=13.248)Age>44.5,",
+  "(((((Age=70)Adiponectin<9.3482)BMI<32.275)Glucose<",
+  "111)Leptin>7.93315)Age>48.5)Glucose=91.5;")
 
 
 > # plot tree diagram and save to your working directory
