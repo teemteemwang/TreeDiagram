@@ -495,7 +495,7 @@ loca_plot <- function(node_list,mid_x,mid_y,width,length){
   }
   # if length is 1
   else{
-    return(c(x0-width/4,y0-length/2,width/2,length,nodei=node_list[list_len]))
+    return(c(x0-width/4,y0-length/2,width/2,length,list_len,nodei=node_list[list_len]))
   }
 }
 
