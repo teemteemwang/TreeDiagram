@@ -1,6 +1,6 @@
 # # required preinstall packages: ape, tree, ggplot2, cowplot
 # # also see tree diagram paper (2020 Summer)
-# packages <- c("ggplot2","ape","cowplot","tree","stringr","spatstat")
+# packages <- c("ggplot2","ape","cowplot","tree","stringr","spatstat","stats")
 # # check for missing packages
 # installed_packages <- packages %in% rownames(installed.packages())
 # if (any(installed_packages == FALSE)) {
@@ -307,6 +307,7 @@ get_est_label <- function(data,cat_var,lab1,est_lab1=1,est_lab2=2,threshold=0.5)
 # so 91.5 is the value used for that split)
 
 #' @import ggplot2
+#' @importFrom stats density
 # informative (double density) plot function for one split node
 informative_plot <- function(data,cont_var,cat_var,filename=NA,classify.value=NULL){
 
@@ -367,13 +368,15 @@ informative_plot <- function(data,cont_var,cat_var,filename=NA,classify.value=NU
 
   color_for_plot <- color_scheme[color_num]
 
+  #avoid R CMD check from getting NOTE
+  x <- y <-list()
   # subset1 has only one data point --> draw bottom density
   if (nrow(subset1)<2) {
     # print("subset1 has only one data point") #debug
 
     # prepare for density plot:
     # density data
-    bottom_density_dat <- with(density(subset2[,cont_var]), data.frame(x, y=-y))
+    bottom_density_dat <- with(density(subset2[,cont_var]), data.frame(x=x, y=-y))
     # find maximum y scale value
     max_density <- max(density(subset2[,cont_var])$y)
     # max y-axis value
@@ -397,7 +400,7 @@ informative_plot <- function(data,cont_var,cat_var,filename=NA,classify.value=NU
     # print("subset2 has only one data point") #debug
 
     # prepare for density plot: density data
-    top_density_dat <- with(density(subset1[,cont_var]), data.frame(x, y))
+    top_density_dat <- with(density(subset1[,cont_var]), data.frame(x=x, y=y))
     # find maximum y scale value
     max_density <- max(density(subset1[,cont_var])$y)
     # max y-axis value
@@ -418,8 +421,8 @@ informative_plot <- function(data,cont_var,cat_var,filename=NA,classify.value=NU
   # otherwise draw both top and bottom densities
   else{
     # prepare for density plot: density data
-    top_density_dat <- with(density(subset1[,cont_var]), data.frame(x, y))
-    bottom_density_dat <- with(density(subset2[,cont_var]), data.frame(x, y=-y))
+    top_density_dat <- with(density(subset1[,cont_var]), data.frame(x=x, y=y))
+    bottom_density_dat <- with(density(subset2[,cont_var]), data.frame(x=x, y=-y))
     # find maximum y scale value
     max_density <- max(c(max(density(subset1[,cont_var])$y),
                          max(density(subset2[,cont_var])$y)))
@@ -504,7 +507,6 @@ loca_plot <- function(node_list,mid_x,mid_y,width,length){
 
 
 # ==================== function to combine multiple informative plots ==============
-
 # We gather most of separate steps(& functions) together into one to create our tree diagram.
 #' @import ggplot2
 #' @import cowplot
@@ -581,7 +583,7 @@ multi_densPlot <- function(data,conditions_string=NULL,ls_node_num=NULL,split_va
       # print(p) #debug
 
       # for the every 2nd layer, we need to rotate our plot to the left with 90 degree
-      if(((length(str_extract_all(conditions_string[[i]][1],"&")[[1]])+1) %% 2) == 0){
+      if(((length(stringr::str_extract_all(conditions_string[[i]][1],"&")[[1]])+1) %% 2) == 0){
         p<-p+scale_y_reverse()+cf+coord_flip()+
           theme(panel.background = element_rect(fill = "transparent",colour = NA))
       }
@@ -629,6 +631,8 @@ multi_densPlot <- function(data,conditions_string=NULL,ls_node_num=NULL,split_va
 # treedat can be either a tree string or tree information in decision tree
 # maybe in the future we can have 1,2,3.. to indicate different types of tree information
 # constructing by different tree functions (e.g 1=newick, 2=tree information in tree(),3=...)
+# see treeDiagram.Rd for more description on parameters
+
 #' @export
 treeDiagram <- function(data,treedat,cat_var,filename,pic_height=10,pic_width=10){
   # get tree information
@@ -758,12 +762,26 @@ get_node_list_trf <- function(CutInfo){
 # test <- get_node_list_trf(Cut)
 
 
-# visualization for result from random tessellation random forest model
-#' @import ggplot2
-#' @import cowplot
-#' @import stringr
-#' @importFrom utils str
-multi_densPlot_trf <- function(Cutinfo,ls_node_num=NULL,filename,pic_height=NULL,pic_width=NULL){
+# Visualization for result from random tessellation random forest model
+
+# @param Cutinfo A nested list. Return output from \code{tessellation random process} software
+# @param response_var Binary categorical variable. Response variable name in the tessellation random forest method
+# @param ls_node_num A nested list. A list of split node number along each hierarchical path from root-to-node.
+# @param filename Character string. The name of output figure
+# @param pic_height numeric output figure's height; default argument is set as 10.
+# @param pic_width numeric output figure's width; default argument is set as 10.
+#
+# @return a tree diagram
+#
+# @references S. Ge, S. Wang, Y. W. Teh, L. Wang, and L. T. Elliott. \emph{Random tessellation forests}. In Proceedings of the 33rd Conference on Neural Information Processing Systems, 2019.
+#
+# @import ggplot2
+# @import cowplot
+# @import stringr
+# @importFrom utils str
+#
+# @keywords internal
+multi_densPlot_trf <- function(Cutinfo,response_var,ls_node_num=NULL,filename,pic_height=NULL,pic_width=NULL){
 
   if((length(Cutinfo)-1)!=0){
 
@@ -778,14 +796,14 @@ multi_densPlot_trf <- function(Cutinfo,ls_node_num=NULL,filename,pic_height=NULL
     cf$default <- TRUE
 
     for(i in 1:(length(Cutinfo)-1)){
-      subset1 <- data.frame(t.scale=unlist(Cutinfo[[i]][9]),label=group[as.numeric(unlist(Cutinfo[[i]][11]))])
-      subset2 <- data.frame(t.scale=unlist(Cutinfo[[i]][10]),label=group[as.numeric(unlist(Cutinfo[[i]][12]))])
+      subset1 <- data.frame(t.scale=unlist(Cutinfo[[i]][9]),label=response_var[as.numeric(unlist(Cutinfo[[i]][11]))])
+      subset2 <- data.frame(t.scale=unlist(Cutinfo[[i]][10]),label=response_var[as.numeric(unlist(Cutinfo[[i]][12]))])
       colnames(subset1)[1] =colnames(subset2)[1]="t.scale"
       # print("before combining data") #debug
       combined_subset <- data.frame(rbind(subset1,subset2))
       combined_subset$label <- as.factor(combined_subset$label)
 
-      print(str(combined_subset))
+      # print(str(combined_subset)) #debug
 
       # plot picture separately
       cont_var <- "t.scale"
