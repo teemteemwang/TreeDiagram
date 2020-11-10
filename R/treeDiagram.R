@@ -315,11 +315,11 @@ informative_plot <- function(data,cont_var,cat_var,filename=NA,classify.value=NU
   # library(ggplot2)
 
   #stop running function if categorical var is more than 2 levels
-  if(length(levels(data[,cat_var])) > 2) { print("categorical variable is not binary");stop() }
+  if(length(levels(data[,cat_var])) > 2) { stop("categorical variable is not binary") }
   #stop running function if var is not factored
-  if(is.null(levels(data[,cat_var]))) { print("categorical variable is not factored");stop() }
+  if(is.null(levels(data[,cat_var]))) { stop("categorical variable is not factored") }
   # avoid emtpy dataset
-  if((dim(data)[1])<1){print("informative plot requires at least two data points to draw");stop()}
+  if((dim(data)[1])<1){stop("informative plot requires at least two data points to draw")}
 
   # relevel data set
   levels(data[,cat_var])<-c(1,2)
