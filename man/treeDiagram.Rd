@@ -39,36 +39,37 @@
   }
 }
 
+
 \examples{
 \dontrun{
-> # read breast cancer data from UCI database website
-> cancer <- read.csv(
+# read breast cancer data from UCI database website
+cancer <- read.csv(
   url("https://archive.ics.uci.edu/ml/machine-learning-databases/00451/dataR2.csv"))
-> # make sure predictor variable is factored
-> cancer$Classification <- factor(cancer$Classification)
-> summary(cancer) #optional step giving an overview of the dataset
+# make sure predictor variable is factored
+cancer$Classification <- factor(cancer$Classification)
+summary(cancer) #optional step giving an overview of the dataset
 
-> # set working directory (this step is optional)
-> setwd("~/user location")
+# set working directory (this step is optional)
+# setwd("~/user location")
 
-> # e.g.1 : draw tree diagram according to the first object returned by 'tree()'
-> # create decision tree
-> library(tree)
-> t_cancer <- tree(Classification ~ ., data=cancer)
+# e.g.1 : draw tree diagram according to the first object returned by 'tree()'
+# create decision tree
+library(tree)
+t_cancer <- tree(Classification ~ ., data=cancer)
 
-> # plot tree diagram and save to your working directory
-> treeDiagram(cancer,t_cancer[[1]],"Classification","tree diagram for tree()")
+# plot tree diagram and save to your working directory
+treeDiagram(cancer,t_cancer[[1]],"Classification","tree diagram for tree()")
 
-> # e.g.2 : draw tree diagram giving a newick format file of a tree
-> # newick format string of a decision tree for breast cancer
-> breast_cancer <- paste0(
+# e.g.2 : draw tree diagram giving a newick format file of a tree
+# newick format string of a decision tree for breast cancer
+breast_cancer <- paste0(
   "(((BMI=25.745,BMI=29.722)Resistin=13.248)Age>44.5,",
   "(((((Age=70)Adiponectin<9.3482)BMI<32.275)Glucose<",
   "111)Leptin>7.93315)Age>48.5)Glucose=91.5;")
 
 
-> # plot tree diagram and save to your working directory
-> treeDiagram(cancer,breast_cancer,"Classification","tree diagram for newicks format file")
+# plot tree diagram and save to your working directory
+treeDiagram(cancer,breast_cancer,"Classification","tree diagram for newicks format file")
 }}
 
 \keyword{tree}
