@@ -35,10 +35,9 @@
           \item tip node is written in the form of "var = value"
           \item tree is read from left to right
       }
-  \item Six required packages, "ggplot2","ape","cowplot","tree","stringr","spatstat", will be automatically installed if user has not yet installed.
+  \item Six required packages, "ggplot2","ape","cowplot","tree","stringr", will be automatically installed if user has not yet installed.
   }
 }
-
 
 \examples{
 \dontrun{
