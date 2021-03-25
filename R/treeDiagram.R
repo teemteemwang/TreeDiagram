@@ -1,6 +1,6 @@
 # # required preinstall packages: ape, tree, ggplot2, cowplot
 # # also see tree diagram paper (2020 Summer)
-# packages <- c("ggplot2","ape","cowplot","tree","stringr","spatstat","stats")
+# packages <- c("ggplot2","ape","cowplot","tree","stringr","stats")
 # # check for missing packages
 # installed_packages <- packages %in% rownames(installed.packages())
 # if (any(installed_packages == FALSE)) {
@@ -12,13 +12,12 @@
 
 # =====================get tree information function ==================================
 ## This function allows users to retrieve tree information to know how many density plots to draw and how to draw
-#' @importFrom spatstat is.empty
 #' @importFrom stringr str_remove
 #' @keywords internal
 tree_info <- function(dataset){
 
   # avoid empty dataset
-  if(is.empty(dataset)){stop("argument is of an empty dataset")}
+  if(dim(dataset)[1]==0|is.null(dataset)){stop("argument is of length zero")}
 
   # library(stringr)
 
