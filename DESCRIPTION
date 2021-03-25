@@ -8,7 +8,7 @@ Date: 2021-03-25
 Description: Visualizing cuts for either axis-align or non axis-align tree methods (e.g. decision tree, random tessellation process).
 License: BSD_2_clause + file LICENCE
 Encoding: UTF-8
-Imports: ggplot2,ape,cowplot,tree,stringr,utils,stats
+Imports: ggplot2,ape,cowplot,tree,stringr,stats
 LazyData: TRUE
 Suggests: testthat
 RoxygenNote: 7.1.1
