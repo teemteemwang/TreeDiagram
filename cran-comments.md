@@ -16,6 +16,8 @@ Changes made:
 1) removed is.empty(dataset) from tree.info() and replaced by "if(dim(dataset)[1]==0|is.NULL(dataset)){...}"
 2) embeded data (breast cancer data; see cancer.rd) in the "man" folder
 3) update version number form 0.1.0 to 0.1.1
+4) remove "ImportFrom utlis str" in treeDiagram.R and Description
 
 Explanation:
 1) is.empty() is not found in the "spatstat" package
+4) str() function is only used dor debugging purpose, so it won't be used for any internal or external functions for treeDiagram; thus, we removed it from the import list
