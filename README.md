@@ -1,7 +1,6 @@
 # TreeDiagram
 
-To make an R package ready for CRAN, use the template above. \
-Unzip package file (for example into ~/Desktop/TreeDiagram), and then modify it and then install locally with this command: 
+Visualizing cuts for either axis-align or non axis-align tree methods (e.g. decision tree, random tessellation process).
 
 # install package:
 remove.packages("TreeDiagram") \
